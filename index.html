@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Urban Traffic System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">🚦 Urban Traffic System</div>
+    <div class="nav-links">
+      <a href="#predict-section">Predict</a>
+      <a href="#charts-section">Analytics</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Urban Traffic<br><span>Prediction System</span></h1>
+      <p>AI-powered traffic level prediction using Machine Learning.<br>
+         Input time, vehicle count & weather — get instant results.</p>
+      <div class="hero-badges">
+        <span>🤖 Random Forest ML</span>
+        <span>📊 99% Accuracy</span>
+        <span>⚡ Real-time Prediction</span>
+      </div>
+    </div>
+    <div class="hero-road">
+      <div class="road-line"></div>
+      <span class="car c1">🚗</span>
+      <span class="car c2">🚕</span>
+      <span class="car c3">🚙</span>
+      <span class="car c4">🚌</span>
+    </div>
+  </section>
+
+  <!-- Predict Section -->
+  <section class="section" id="predict-section">
+    <div class="section-inner two-col">
+
+      <!-- Input Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2>🔍 Predict Traffic Level</h2>
+          <p>Fill in the details below</p>
+        </div>
+        <div class="form-group">
+          <label>⏰ Time of Day</label>
+          <input type="time" id="inp-time" value="08:00" />
+        </div>
+        <div class="form-group">
+          <label>🚗 Vehicle Count <small>(per minute)</small></label>
+          <input type="number" id="inp-vehicles" value="80" min="0" max="999" placeholder="e.g. 80" />
+          <div class="slider-wrap">
+            <input type="range" id="slider-vehicles" min="0" max="300" value="80" oninput="syncSlider(this.value)" />
+            <span class="slider-val" id="slider-display">80</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>🌤️ Weather Condition</label>
+          <select id="inp-weather">
+            <option value="clear">☀️ Clear / Sunny</option>
+            <option value="cloudy">⛅ Cloudy</option>
+            <option value="rain">🌧️ Rainy</option>
+            <option value="heavy_rain">⛈️ Heavy Rain / Storm</option>
+            <option value="fog">🌫️ Foggy</option>
+            <option value="snow">❄️ Snowy</option>
+          </select>
+        </div>
+        <button class="btn-predict" onclick="predict()">
+          <span id="btn-text">Predict Traffic Level</span>
+        </button>
+      </div>
+
+      <!-- Result Card -->
+      <div class="card result-card" id="result-card">
+        <div class="card-header">
+          <h2>📊 Prediction Result</h2>
+          <p id="result-meta">Awaiting input...</p>
+        </div>
+
+        <div class="level-display" id="level-display">
+          <div class="level-icon" id="level-icon">?</div>
+          <div>
+            <div class="level-text" id="level-text">—</div>
+            <div class="level-label">TRAFFIC LEVEL</div>
+          </div>
+        </div>
+
+        <!-- Probability bars -->
+        <div class="prob-section">
+          <div class="prob-title">Confidence</div>
+          <div class="prob-row">
+            <span>Low</span>
+            <div class="prob-bar-bg"><div class="prob-bar low" id="prob-low" style="width:0%"></div></div>
+            <span id="pct-low">0%</span>
+          </div>
+          <div class="prob-row">
+            <span>Medium</span>
+            <div class="prob-bar-bg"><div class="prob-bar medium" id="prob-medium" style="width:0%"></div></div>
+            <span id="pct-medium">0%</span>
+          </div>
+          <div class="prob-row">
+            <span>High</span>
+            <div class="prob-bar-bg"><div class="prob-bar high" id="prob-high" style="width:0%"></div></div>
+            <span id="pct-high">0%</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-val" id="stat-speed">—</div>
+            <div class="stat-lbl">Speed (km/h)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-delay">—</div>
+            <div class="stat-lbl">Delay (min)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-signal">—</div>
+            <div class="stat-lbl">Green Light (s)</div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-box" id="tips-box"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Charts Section -->
+  <section class="section dark-section" id="charts-section">
+    <div class="section-inner">
+      <h2 class="section-title">📈 Traffic Analytics</h2>
+      <p class="section-sub">Insights from the training dataset</p>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Traffic by Hour of Day</h3>
+          <canvas id="chartHourly"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Traffic Level Distribution</h3>
+          <canvas id="chartDist"></canvas>
+        </div>
+        <div class="chart-card full">
+          <h3>Weather vs Traffic Level</h3>
+          <canvas id="chartWeather"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>🚦 Urban Traffic Prediction System &nbsp;|&nbsp; Built with Python · Flask · Scikit-learn · Chart.js</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
