@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, accuracy_score
 import pickle
 import os
-
+os.makedirs('model', exist_ok=True)
 np.random.seed(42)
 n = 2000
 
